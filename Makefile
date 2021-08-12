@@ -9,6 +9,7 @@ sources += core/t_netif.c
 sources += core/t_pbuf.c
 sources += core/t_memp.c
 sources += core/t_arp.c
+sources += core/t_icmp.c
 
 sources += user/s_main.c
 
@@ -19,6 +20,7 @@ INC += -I./include/ipv4
 
 FLAGS := -g
 #FLAGS += -DT_TEST_MALLOC
+#FLAGS += -DT_TEST_ARP
 
 main:
 	gcc ${sources} ${FLAGS} -lpcap -lpthread ${INC} 

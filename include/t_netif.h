@@ -13,7 +13,9 @@ struct t_netif{
 
 //	uint32_t state;
 	uint8_t hwaddr[6];
+	uint8_t hwaddr_len;
 	uint16_t mtu;
+
 	uint8_t flags;
 	uint8_t link_type;
 	uint8_t name[2];

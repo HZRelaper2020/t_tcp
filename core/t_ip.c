@@ -2,10 +2,31 @@
 
 t_err_t t_ip_input(struct t_pbuf *p,struct t_netif* inp)
 {
-	static int times = 0;
-	times += 1;
-	printf("it's ip\n");
-	return 0;
+	int ret = 0;
+	t_pbuf_header(p,14);
+
+	struct  t_ip_hdr* iphdr = (struct t_ip_hdr*)p->payload;
+
+	if (T_IPH_V(iphdr) != 4){
+		ERROR(("t_ip_input: not supported ip version"));
+		ret = -1;
+	}else{
+		uint16_t iphdrlen = T_IPH_HL(iphdr) * 4;
+		if (p->len > iphdrlen){
+			switch(T_IPH_PROTO(iphdr)){
+				case T_IP_PROTO_ICMP:
+					t_icmp_input(p,inp);
+					break;
+				default:
+					break;
+			}
+		}else{
+			ret = -1;
+			ERROR(("t_ip_input:p->len < iphdrlen"));
+		}
+	}
+
+	return ret;
 }
 
 /*
@@ -25,7 +46,7 @@ t_err_t t_raw_input(struct t_pbuf *p,struct t_netif* inp)
 
 	struct t_ether_hdr* header=(struct t_ether_hdr*)p->payload;
 
-	switch(header->frame_type){
+	switch(htons(header->frame_type)){
 		case T_ARP_FRAME_TYPE:
 			ret = t_arp_input(p,inp);
 			break;
@@ -37,7 +58,7 @@ t_err_t t_raw_input(struct t_pbuf *p,struct t_netif* inp)
 		default:
 			ret = -1;
 			ERROR(("t_raw_input:not supported frame type 0x%x",header->frame_type));
-			print_hex(p->payload,p->tot_len);
+//			print_hex(p->payload,p->tot_len);
 				break;
 	}
 

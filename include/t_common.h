@@ -37,6 +37,8 @@ static void inline print_hex(const uint8_t* data,int size)
 
 #include "ipv4/t_ip.h"
 #include "t_arp.h"
+#include "t_icmp.h"
+
 #pragma pack()
 
 #endif

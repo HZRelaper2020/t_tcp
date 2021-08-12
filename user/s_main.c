@@ -15,7 +15,7 @@ static t_err_t etherif0_init(struct t_netif* netif)
 
 static t_err_t  ether0_output(struct t_netif* netif,struct t_pbuf *p)
 {
-//	linux_send_data()
+	linux_send_data(p->payload,p->tot_len);
 	return 0;
 }
 
@@ -34,10 +34,10 @@ static void ether0_recv_data(const uint8_t* data,int len)
 static void ether_init()
 {
 
-	ip.addr = 0x6701A8C0;
+	ip.addr = 0x7001A8C0;
 	mask.addr = 0x00FFFFFF;
 	gw.addr = 0x0101A8C0;
-	uint8_t mac[6] = {0xb0,0x6e,0xbf,0x37,0x50,0xbd};
+	uint8_t mac[6] = {0xb0,0x6e,0xbf,0x37,0x50,0xb0};
 
 	t_netif_set_mac(&netif0,mac);
 	t_netif_set_addr(&netif0,&ip,&mask,&gw);
@@ -55,8 +55,16 @@ int main()
 	t_arp_init();
 	ether_init();
 
+#ifdef T_TEST_ARP
+	t_arp_test(&netif0);
+#endif
+
+	uint32_t times = 0;
 	while(1){
 		char c = getchar();
+		if (c == 32){
+		}else if (c == 0x31){ // 1
+		}
 		printf("input c:%d\n",c);
 	}
 	return 0;

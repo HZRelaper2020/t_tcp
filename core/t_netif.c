@@ -21,6 +21,7 @@ void t_netif_set_netmask(struct t_netif* netif,struct t_ip_addr *mask)
 
 void t_netif_set_gw(struct t_netif* netif,struct t_ip_addr *gw)
 {
+	netif->gw.addr = gw->addr;
 }
 
 int t_netif_set_addr(struct t_netif* netif,struct t_ip_addr *ip,struct t_ip_addr *mask,struct t_ip_addr *gw)
@@ -36,6 +37,7 @@ int t_netif_set_mac(struct t_netif* netif,uint8_t* mac)
 	for (int i=0;i<6;i++){
 		netif->hwaddr[i] = *(mac+i);
 	}
+	netif->hwaddr_len = 6;
 	return 0;
 }
 
@@ -52,6 +54,8 @@ int t_netif_add(struct t_netif *netif,\
 	netif_default = netif;
 
 	init(netif);
+	netif->output = output;
+
 	return 0;	
 }
 

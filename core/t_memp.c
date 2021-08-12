@@ -38,11 +38,13 @@ void t_memp_init(void)
 }
 
 
+static int now_count = 0;
 void* t_memp_malloc(t_memp_t type)
 {
 	struct t_memp* p = NULL;
 	uint16_t offset = type;
 
+	now_count += 1;
 	TASKSUSPENDALL();
 
 	struct t_memp* memp;
@@ -69,6 +71,7 @@ void t_memp_free(t_memp_t type,void* mem)
 	struct t_memp* mp;
 	TASKSUSPENDALL();
 	
+	now_count -=1;
 	mp = (struct t_memp*)((uint8_t*)mem - sizeof(struct t_memp));
 
 	if (memp_tab[type] != NULL){
