@@ -7,9 +7,10 @@
 #include <unistd.h>
 #include <time.h>
 #include <pthread.h>
+#include <stdlib.h>
 
-#define ERROR(a) do{printf a;printf("\n");}while(0)
-#define PRINT(a) do{printf a;}while(0)
+#define ERROR(a) do{time_t now;time(&now);printf("%10ld  ",now);printf a;printf("\n");}while(0)
+#define PRINT(a) do{time_t now;time(&now);printf("%10ld  ",now);printf a;}while(0)
 
 #include "user/t_lwipopts.h"
 

@@ -33,7 +33,7 @@ int t_icmp_input(struct t_pbuf* p,struct t_netif* inp)
 				}else{
 					echo->chksum += htons(T_ICMP_ECHO_REQUEST<<8);
 				}
-
+				t_ip_output(inp,p,NULL,&iphdr->src,T_IPH_TTL(iphdr),0,T_IP_PROTO_ICMP);
 				break;
 		}
 	}else{

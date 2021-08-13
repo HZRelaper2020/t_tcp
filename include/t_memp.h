@@ -5,7 +5,9 @@
 #define T_MEMP_MEMORY_SIZE		4096
 #endif
 
-#define T_MEMP_NUM_TCPIP_MSG		15	
+#ifndef T_MEMP_NUM_TCPIP_MSG
+#define T_MEMP_NUM_TCPIP_MSG		50	
+#endif
 
 typedef enum{
 	T_MEMP_TCPIP_MSG = 0,

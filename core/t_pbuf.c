@@ -39,14 +39,23 @@ struct t_pbuf* t_pbuf_pool_alloc()
 	struct t_pbuf* p = pbuf_pool;
 	if (p){
 		pbuf_pool = p->next;
+		p->next = NULL;
 	}
+
+	int count = 0;
+	struct t_pbuf* q = pbuf_pool;
+	while(q != NULL){
+		q = q->next;
+		count +=1 ;
+	}
+	PRINT(("pbuf alloc %p remain:%d\n",(void*)p,count));
 	return p;
 }
 
 struct t_pbuf* t_pbuf_alloc(uint16_t offset,uint16_t length,uint16_t flags)
 {
 	uint16_t rem_len = length + offset;
-	struct t_pbuf* p, * q;
+	struct t_pbuf* p=NULL, * q=NULL;
 
 	TASKSUSPENDALL();
 	if (rem_len > T_PBUF_BUFSIZE){
@@ -102,6 +111,7 @@ int t_pbuf_free(struct t_pbuf*p)
 				case T_PBUF_FLAG_POOL:
 					p->next = pbuf_pool;
 					pbuf_pool=p;
+					PRINT(("pbuf free  %p\n",(void*)p));
 					break;
 			}
 		}
@@ -138,9 +148,11 @@ int t_pbuf_header(struct t_pbuf *p,int increment)
 			p->tot_len -= increment;
 			p->len -= increment;
 		}else{
+			ret = -1;
 			ERROR(("t_pbuf_header:exceed limit"));
 		}
 	}else{
+		ret = -1;
 		ERROR(("t_pbuf_header:not supported other flags"));
 	}
 	

@@ -2,13 +2,26 @@
 #define SOURCE_T_IP__H
 
 
+#define T_IP_HLEN			20
+
 #define T_ARP_FRAME_TYPE		0x0806U
 #define T_IPV4_FRAME_TYPE 		0x0800U
 
+#define T_IP_DF				0x4000 /* do not fragment */
 #define T_IPH_V(a)		(htons((a)->_v_hl_tos)>>12)
 #define T_IPH_HL(a)		(htons((a)->_v_hl_tos)>>8&0x0f)
+#define T_IPH_TTL(a)		(htons((a)->_ttl_proto)>>8)
 
 #define T_IPH_PROTO(a)		(htons((a)->_ttl_proto)&0xff)
+
+
+#define T_IPH_VHLTOS_SET(hdr, v, hl, tos) (hdr)->_v_hl_tos = (htons(((v) << 12) | ((hl) << 8) | (tos)))
+#define T_IPH_LEN_SET(hdr, len) (hdr)->_len = (len)
+#define T_IPH_ID_SET(hdr, id) (hdr)->_id = (id)
+#define T_IPH_OFFSET_SET(hdr, off) (hdr)->_offset = (off)
+#define T_IPH_TTL_SET(hdr, ttl) (hdr)->_ttl_proto = (htons(T_IPH_PROTO(hdr) | ((ttl) << 8)))
+#define T_IPH_PROTO_SET(hdr, proto) (hdr)->_ttl_proto = (htons((proto) | (T_IPH_TTL(hdr) << 8)))
+#define T_IPH_CHKSUM_SET(hdr, chksum) (hdr)->_chksum = (chksum)
 
 #define T_IP_PROTO_ICMP		1
 
@@ -43,5 +56,7 @@ t_err_t t_ip_input(struct t_pbuf *p,struct t_netif* inp);
 
 t_err_t t_raw_input(struct t_pbuf *p,struct t_netif* inp);
 
-
+int t_ip_output(struct t_netif* inp,struct t_pbuf* p,struct t_ip_addr *src,
+                struct t_ip_addr * dst,
+                uint8_t ttl,uint8_t tos, uint8_t proto);
 #endif

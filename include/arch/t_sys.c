@@ -27,7 +27,8 @@ t_sys_mbox_t t_sys_mbox_new(int count)
 }
 
 static uint16_t msg_count = 0;
-static uint32_t* msg_list[10];
+#define T_MSG_LIST_MAX 100
+static uint32_t* msg_list[T_MSG_LIST_MAX];
 
 int t_sys_thread_new(void (*task)(void* arg),int priority,int stacksize)
 {
@@ -51,8 +52,13 @@ int t_sys_mbox_post(t_sys_mbox_t* mbox, struct t_tcpip_msg * msg)
 		perror("sem_post");
 		ret = -1;
 	}else{
-		msg_list[msg_count] = (uint32_t*)msg;
-		msg_count += 1;
+		if (msg_count < T_MSG_LIST_MAX){
+			msg_list[msg_count] = (uint32_t*)msg;
+			msg_count += 1;
+		}else{
+			ERROR(("t_sys_mbox_post:msg_count is too big"));
+			ret = -1;
+		}
 	}
 	return ret;
 }

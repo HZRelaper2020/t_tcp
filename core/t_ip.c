@@ -57,11 +57,37 @@ t_err_t t_raw_input(struct t_pbuf *p,struct t_netif* inp)
 			break;
 		default:
 			ret = -1;
-			ERROR(("t_raw_input:not supported frame type 0x%x",header->frame_type));
+//			ERROR(("t_raw_input:not supported frame type 0x%x",header->frame_type));
 //			print_hex(p->payload,p->tot_len);
 				break;
 	}
 
 	t_pbuf_free(p);
+	return ret;
+}
+
+int t_ip_output(struct t_netif* inp,struct t_pbuf* p,struct t_ip_addr *src,
+		struct t_ip_addr * dst,
+		uint8_t ttl,uint8_t tos, uint8_t proto)
+{
+	int ret =0;
+	if (src == NULL){
+		src = & inp->ip_addr;
+	}
+	t_pbuf_header(p,-T_IP_HLEN);
+
+	struct t_ip_hdr* iphdr =(struct t_ip_hdr*)p->payload;
+
+	T_IPH_TTL_SET(iphdr,ttl);
+	T_IPH_PROTO_SET(iphdr,proto);
+
+	iphdr->dst.addr = dst->addr;
+
+	T_IPH_VHLTOS_SET(iphdr,4,T_IP_HLEN/4,tos);
+	T_IPH_LEN_SET(iphdr,htons(p->tot_len));
+	T_IPH_OFFSET_SET(iphdr,htons(T_IP_DF));
+
+	
+
 	return ret;
 }
