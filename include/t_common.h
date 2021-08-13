@@ -14,9 +14,6 @@
 
 #include "user/t_lwipopts.h"
 
-#pragma pack(1)
-#include "t_pbuf.h"
-#include "t_memp.h"
 
 static void inline print_hex(const uint8_t* data,int size)
 {
@@ -27,6 +24,10 @@ static void inline print_hex(const uint8_t* data,int size)
 	}
 	PRINT(("\n\n"));
 }
+
+#pragma pack(1)
+#include "t_pbuf.h"
+#include "t_memp.h"
 
 #include "t_err.h"
 
