@@ -4,7 +4,7 @@ struct t_memp{
 	struct t_memp* next;
 };
 
-static  uint8_t memp_memory[T_MEMP_NUM_TCPIP_MSG * (sizeof(struct t_memp) +T_MEMP_NUM_TCPIP_MSG)];
+static  uint8_t memp_memory[T_MEMP_NUM_TCPIP_MSG * (sizeof(struct t_memp) + sizeof(struct t_tcpip_msg))];
 static struct t_memp * memp_tab[T_MEMP_MAX];
 
 static const uint16_t memp_sizes[T_MEMP_MAX]={
@@ -31,16 +31,10 @@ void t_memp_init(void)
 			m = m->next;
 		}
 
-#if 1
 		m->next = NULL;
 		mp = (struct t_memp*)((uint8_t*)mp + size * memp_num[i]);
-#endif
 	}
 
-
-	printf("tab %ld memory %ld\n",sizeof(memp_tab[0]),sizeof(&memp_memory[0]));
-	printf("tab %p memory %p\n",memp_tab[0],&memp_memory[0]);
-	exit(0);
 
 }
 

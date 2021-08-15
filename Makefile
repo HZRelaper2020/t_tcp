@@ -24,5 +24,4 @@ FLAGS := -g
 
 main:
 	gcc ${sources} ${FLAGS} -lpcap -lpthread ${INC} 
-	./a.out
-#	sudo gdb ./a.out
+	sudo gdb ./a.out
