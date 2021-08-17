@@ -87,7 +87,24 @@ int t_ip_output(struct t_netif* inp,struct t_pbuf* p,struct t_ip_addr *src,
 	T_IPH_LEN_SET(iphdr,htons(p->tot_len));
 	T_IPH_OFFSET_SET(iphdr,htons(T_IP_DF));
 
-	
+	t_ip_addr_set(&(iphdr->src), src);
+	T_IPH_CHKSUM_SET(iphdr, t_inet_chksum(iphdr, T_IP_HLEN));
+
+
+	if (t_pbuf_header(p,-14)){
+		ERROR(("t_bpbuf_header failed"));
+	}else{
+		struct t_ether_hdr *ethhdr =(struct t_ether_hdr*)p->payload;
+		uint8_t buf[6] = {0xf8,0x63,0x3f,0x6b,0x2c,0xbd};
+		//uint8_t buf[6] = {0xb0,0x25,0xaa,0x26,0xca,0x7c};
+		// ether mac
+		memcpy(ethhdr->dst,buf,6);
+		memcpy(ethhdr->src,inp->hwaddr,6);
+		ethhdr->frame_type = htons(0x800);
+		// 
+		inp->output(inp,p);
+	}
+
 
 	return ret;
 }

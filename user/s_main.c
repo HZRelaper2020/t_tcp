@@ -6,6 +6,7 @@
 
 static struct t_netif netif0;
 struct t_ip_addr ip,mask,gw;
+FILE* fd = NULL;
 
 static t_err_t etherif0_init(struct t_netif* netif)
 {
@@ -21,6 +22,11 @@ static t_err_t  ether0_output(struct t_netif* netif,struct t_pbuf *p)
 
 static void ether0_recv_data(const uint8_t* data,int len)
 {
+	if (fd != NULL){
+		fwrite(&len,1,4,fd);
+		fwrite(data,1,len,fd);
+		fflush(fd);
+	}
 	struct t_pbuf *p = t_pbuf_alloc(0,len,T_PBUF_FLAG_POOL);
 	if (p == NULL){
 		ERROR(("ether0_recv_data:no memory to alloc"));
@@ -33,7 +39,7 @@ static void ether0_recv_data(const uint8_t* data,int len)
 
 static void ether_init()
 {
-
+//	fd = fopen("recv.bin","wb+");
 	ip.addr = 0x7001A8C0;
 	mask.addr = 0x00FFFFFF;
 	gw.addr = 0x0101A8C0;
@@ -47,7 +53,11 @@ static void ether_init()
 
 }
 
+#ifdef USER_MAIN
 int main()
+#else
+int main2()
+#endif
 {
 	t_pbuf_init();
 	t_memp_init();

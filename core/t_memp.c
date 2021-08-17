@@ -45,7 +45,6 @@ void* t_memp_malloc(t_memp_t type)
 	struct t_memp* p = NULL;
 	uint16_t offset = type;
 
-	now_count += 1;
 	TASKSUSPENDALL();
 
 	struct t_memp* memp;
@@ -58,11 +57,12 @@ void* t_memp_malloc(t_memp_t type)
 	}
 
 	if (p != NULL){
+		now_count += 1;
 		p = (struct t_memp*)((uint8_t*)p + sizeof(struct t_memp));
 	}
 
 	TASKRESUMEALL();
-	PRINT(("alloc memp %p\n",(void*)p));
+	//PRINT(("alloc memp %p   remain:%d\n",(void*)p,T_MEMP_NUM_TCPIP_MSG -now_count));
 
 	return (void*)p;
 }
@@ -72,7 +72,7 @@ void t_memp_free(t_memp_t type,void* mem)
 	struct t_memp* p;
 	struct t_memp* mp;
 	TASKSUSPENDALL();
-	PRINT(("free  memp %p\n",(void*)mem));
+	//PRINT(("free  memp %p\n",(void*)mem));
 	
 	now_count -=1;
 	mp = (struct t_memp*)((uint8_t*)mem - sizeof(struct t_memp));

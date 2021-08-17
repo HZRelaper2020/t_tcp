@@ -35,7 +35,7 @@ static void t_tcpip_task(void* arg)
 
 int t_tcpip_init()
 {
-	mbox = t_sys_mbox_new(10);
+	mbox = t_sys_mbox_new(0xffff);
 	t_sys_thread_new(t_tcpip_task,1,4096);
 	return 0;
 }
@@ -46,7 +46,7 @@ t_err_t t_tcpip_input(struct t_pbuf*p,struct t_netif* inp)
 	struct t_tcpip_msg * msg = t_memp_malloc(T_MEMP_TCPIP_MSG);
 	if (msg == NULL){
 		t_pbuf_free(p);
-		ERROR(("t_tcpip_input: no memory"));
+		ERROR(("t_tcpip_input: no memory msg"));
 		ret = -1;
 	}
 

@@ -8,8 +8,11 @@
 #define ip_addr_isany(a)	((a)->addr == 0)
 #define ip_addr_isbroadcast(a)	((a)->addr == 0xFFFFFFFF)
 
-#define htons(a)  ((a<<8&0xff00) + (a>>8&0x00ff))
+#define htons(a)  (((a)<<8&0xff00) + ((a)>>8&0x00ff))
 
+#define t_ip_addr_set(dest, src) (dest)->addr = \
+                               ((src) == NULL? 0:\
+                               (src)->addr)
 struct t_ip_addr{
 	uint32_t addr;
 };

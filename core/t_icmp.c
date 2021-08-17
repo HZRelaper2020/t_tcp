@@ -28,12 +28,9 @@ int t_icmp_input(struct t_pbuf* p,struct t_netif* inp)
 				iphdr->dst.addr = tmpaddr.addr;
 			// icmp layer
 				echo->_type_code = (htons(echo->_type_code) & 0xff00); 
-				if (echo->chksum > (htons(0xffff - (T_ICMP_ECHO_REQUEST <<8)))){
-					echo->chksum += htons(T_ICMP_ECHO_REQUEST<<8) +1;
-				}else{
-					echo->chksum += htons(T_ICMP_ECHO_REQUEST<<8);
-				}
-				t_ip_output(inp,p,NULL,&iphdr->src,T_IPH_TTL(iphdr),0,T_IP_PROTO_ICMP);
+				echo->chksum = 0;
+				echo->chksum = t_inet_chksum(p->payload,p->tot_len);
+				t_ip_output(inp,p,NULL,&iphdr->dst,T_IPH_TTL(iphdr),0,T_IP_PROTO_ICMP);
 				break;
 		}
 	}else{

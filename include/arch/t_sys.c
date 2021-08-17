@@ -26,7 +26,7 @@ t_sys_mbox_t t_sys_mbox_new(int count)
 	return *sem;
 }
 
-static uint16_t msg_count = 0;
+static volatile uint16_t msg_count = 0;
 #define T_MSG_LIST_MAX 100
 static uint32_t* msg_list[T_MSG_LIST_MAX];
 
@@ -52,6 +52,7 @@ int t_sys_mbox_post(t_sys_mbox_t* mbox, struct t_tcpip_msg * msg)
 		perror("sem_post");
 		ret = -1;
 	}else{
+		TASKSUSPENDALL();
 		if (msg_count < T_MSG_LIST_MAX){
 			msg_list[msg_count] = (uint32_t*)msg;
 			msg_count += 1;
@@ -59,6 +60,8 @@ int t_sys_mbox_post(t_sys_mbox_t* mbox, struct t_tcpip_msg * msg)
 			ERROR(("t_sys_mbox_post:msg_count is too big"));
 			ret = -1;
 		}
+		//	printf("  post  msg count:%d ref:%d %p\n",msg_count,msg->msg.inp.p->ref, msg->msg.inp.p);
+		TASKRESUMEALL();
 	}
 	return ret;
 }
@@ -80,23 +83,36 @@ int t_sys_mbox_fetch(t_sys_mbox_t* mbox, struct t_tcpip_msg** msg,int timeout)
 		perror("sem_timewait");
 		ret = -1;
 	}else{
+		TASKSUSPENDALL();
 		if (msg_count > 0){
 			*msg = (struct t_tcpip_msg*)msg_list[0];
 			msg_count -= 1;
 			for (int i=0;i<msg_count;i++){
 				msg_list[i] = msg_list[i+1];
 			}
+		//	printf("  fetch msg count:%d ref:%d %p\n",msg_count,(*msg)->msg.inp.p->ref, (*msg)->msg.inp.p);
 		}else{
 			ret = -1;
 		}
+		TASKRESUMEALL();
 	}
 	return ret;
 }
 
+static pthread_mutex_t lock;
 void TASKSUSPENDALL()
 {
+	static int inited = 0;
+
+	if (!inited){
+		pthread_mutex_init(&lock,NULL);
+		inited = 1;
+	}
+
+	pthread_mutex_lock(&lock);
 }
 
 void TASKRESUMEALL()
 {
+	pthread_mutex_unlock(&lock);
 }

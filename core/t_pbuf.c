@@ -31,6 +31,7 @@ static void t_pbuf_add_tail(struct t_pbuf*p, struct t_pbuf* q)
 			p = p->next;
 		}while(p->next != NULL);
 		p->next = q;
+		p->tot_len += q->len;
 	}
 }
 
@@ -48,7 +49,10 @@ struct t_pbuf* t_pbuf_pool_alloc()
 		q = q->next;
 		count +=1 ;
 	}
+
+#ifdef DEBUG
 	PRINT(("pbuf alloc %p remain:%d\n",(void*)p,count));
+#endif
 	return p;
 }
 
@@ -85,10 +89,13 @@ struct t_pbuf* t_pbuf_alloc(uint16_t offset,uint16_t length,uint16_t flags)
 
 void t_pbuf_ref(struct t_pbuf* p)
 {
+	printf("t_pbuf_ref\n");
+#if 0
 	while( p!= NULL){
 		p->ref += 1;
 		p = p->next;
 	}
+#endif
 }
 
 /*
@@ -111,9 +118,22 @@ int t_pbuf_free(struct t_pbuf*p)
 				case T_PBUF_FLAG_POOL:
 					p->next = pbuf_pool;
 					pbuf_pool=p;
-					PRINT(("pbuf free  %p\n",(void*)p));
+	count = 0;
+	struct t_pbuf* q = pbuf_pool;
+	while(q != NULL){
+		q = q->next;
+		count +=1 ;
+	}
+#ifdef DEBUG
+					PRINT(("pbuf free  %p  remain:%d\n",(void*)p,count));
+#endif
+					break;
+				default:
+					ERROR(("t_pbuf_free: not supported type"));
 					break;
 			}
+		}else{
+			ERROR(("t_pbuf_free:p->ref is not zero"));
 		}
 
 		p = next;
@@ -127,7 +147,7 @@ int t_pbuf_free(struct t_pbuf*p)
 int t_pbuf_copy_data(struct t_pbuf*p,uint8_t* data,int size)
 {
 	int ret = 0;
-	if (size > p->tot_len){
+	if (size > p->len || size < 1){
 		ERROR(("t_pbuf_copy_data:can not copy too long %d %d",size,p->tot_len));
 		ret = -1;
 	}else{
@@ -138,7 +158,7 @@ int t_pbuf_copy_data(struct t_pbuf*p,uint8_t* data,int size)
 
 int t_pbuf_header(struct t_pbuf *p,int increment)
 {
-	int ret = -1;
+	int ret = 0;
 
 	if (p->flags == T_PBUF_FLAG_POOL){
 		void* payload = (void*)p->payload + increment;
@@ -158,3 +178,50 @@ int t_pbuf_header(struct t_pbuf *p,int increment)
 	
 	return ret;
 }
+
+#ifdef T_PBUF_TEST
+int main()
+{
+	t_pbuf_init();
+	void* pot[1024];
+	int count = 0;
+	for (int i=0;i<100;i++){
+		struct t_pbuf* p = t_pbuf_alloc(10,1500,T_PBUF_FLAG_POOL);
+
+		if (!p)
+			continue;
+		pot[count] = p;
+		count += 1;
+		if (t_pbuf_header(p,14)){
+			printf("t_pbuf_header failed 1\n");
+			break;
+		}
+		if (t_pbuf_header(p,20)){
+			printf("t_pbuf_header failed 2\n");
+			break;
+		}
+		if (t_pbuf_header(p,-20)){
+			printf("t_pbuf_header failed 3\n");
+			break;
+		}
+		if (t_pbuf_header(p,-14)){
+			printf("t_pbuf_header failed 4\n");
+			break;
+		}
+	}
+
+	return 0;
+
+	for (int i=0;i<100;i++){
+		t_pbuf_free(pot[i]);
+	}
+
+	for (int i=0;i<20;i++){
+		struct t_pbuf* p = t_pbuf_alloc(0,1514,T_PBUF_FLAG_POOL);
+		pot[count] = p;
+		count += 1;
+		memset(p->payload,0,1514);
+	}
+	return 0;
+}
+#endif

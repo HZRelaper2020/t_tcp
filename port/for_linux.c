@@ -38,6 +38,30 @@ static void* pcap_recv_thread(void* param)
 	int ret;
 	pcap_t* handle = (pcap_t*) param;
 
+#if 0
+	FILE* fd = fopen("recv.bin","rb");
+
+	uint8_t buf[2048];
+	int len =0;
+	int times = 0;
+	while (1){
+		int readlen = fread(&len,1,4,fd);
+		if (readlen < 1) break;
+		readlen = fread(buf,1,len,fd);
+		if (readlen < 1) break;
+
+		times += 1;
+		
+		if (times%9 == 0){
+//			sleep(0.1);
+		}
+		recv_callback(buf,len);
+		printf("times:%d,len%d\n",times,len);
+	}
+
+	fclose(fd);
+	return NULL;
+#endif
 	while(1){
 		ret=pcap_dispatch(handle,1,pcap_recv_callback,NULL);
 		if (ret == -1){

@@ -43,7 +43,6 @@ struct t_ip_hdr{
 	uint16_t _ttl_proto;
 	uint16_t _chksum;
 	struct t_ip_addr src;
-	uint8_t r2[6];
 	struct t_ip_addr dst;
 };
 
