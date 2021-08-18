@@ -17,8 +17,9 @@ t_sys_mbox_t t_sys_mbox_new(int count)
 		ERROR(("too much mbox_new"));
 	}else{
 		sem =  &mbox_list[num];
-		if (sem_init(sem,1,count)){
+		if (sem_init(sem,0,0)){
 			perror("sem_init");
+			ERROR(("sem_init failed"));
 			sem = NULL;
 		}
 	}
@@ -48,11 +49,12 @@ int t_sys_thread_new(void (*task)(void* arg),int priority,int stacksize)
 int t_sys_mbox_post(t_sys_mbox_t* mbox, struct t_tcpip_msg * msg)
 {
 	int ret = 0;
+
+	TASKSUSPENDALL();
 	if (sem_post(mbox)){
 		perror("sem_post");
 		ret = -1;
 	}else{
-		TASKSUSPENDALL();
 		if (msg_count < T_MSG_LIST_MAX){
 			msg_list[msg_count] = (uint32_t*)msg;
 			msg_count += 1;
@@ -60,9 +62,9 @@ int t_sys_mbox_post(t_sys_mbox_t* mbox, struct t_tcpip_msg * msg)
 			ERROR(("t_sys_mbox_post:msg_count is too big"));
 			ret = -1;
 		}
-		//	printf("  post  msg count:%d ref:%d %p\n",msg_count,msg->msg.inp.p->ref, msg->msg.inp.p);
-		TASKRESUMEALL();
+
 	}
+	TASKRESUMEALL();
 	return ret;
 }
 
@@ -75,12 +77,13 @@ int t_sys_mbox_fetch(t_sys_mbox_t* mbox, struct t_tcpip_msg** msg,int timeout)
 		ret = -1;
 	}
 
-	tm.tv_sec += timeout/1000;
+	tm.tv_sec += timeout/1000 +1;
 	tm.tv_nsec += timeout%1000*1000;
 
-	//if (sem_timedwait(mbox, &tm)){
+//	if (sem_timedwait(mbox, &tm)){
 	if (sem_wait(mbox)){
 		perror("sem_timewait");
+		ERROR(("sem_wait"));
 		ret = -1;
 	}else{
 		TASKSUSPENDALL();
@@ -90,29 +93,29 @@ int t_sys_mbox_fetch(t_sys_mbox_t* mbox, struct t_tcpip_msg** msg,int timeout)
 			for (int i=0;i<msg_count;i++){
 				msg_list[i] = msg_list[i+1];
 			}
-		//	printf("  fetch msg count:%d ref:%d %p\n",msg_count,(*msg)->msg.inp.p->ref, (*msg)->msg.inp.p);
 		}else{
 			ret = -1;
 		}
+
 		TASKRESUMEALL();
 	}
 	return ret;
 }
 
-static pthread_mutex_t lock;
+static  pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 void TASKSUSPENDALL()
 {
-	static int inited = 0;
 
-	if (!inited){
-		pthread_mutex_init(&lock,NULL);
-		inited = 1;
+	if (pthread_mutex_lock(&lock)){
+		perror("pthread_mutex_lock");
+		ERROR(("pthread_mutex_lock failed"));
 	}
-
-	pthread_mutex_lock(&lock);
 }
 
 void TASKRESUMEALL()
 {
-	pthread_mutex_unlock(&lock);
+	if (pthread_mutex_unlock(&lock)){
+		perror("pthread_mutex_unlock");
+		ERROR(("pthread_mutex_unlock failed"));
+	}
 }
