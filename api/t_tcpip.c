@@ -35,7 +35,7 @@ static void t_tcpip_task(void* arg)
 
 int t_tcpip_init()
 {
-	mbox = t_sys_mbox_new(0xffff);
+	mbox = t_sys_mbox_new(0xff);
 	t_sys_thread_new(t_tcpip_task,1,4096);
 	return 0;
 }

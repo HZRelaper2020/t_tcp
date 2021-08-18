@@ -44,6 +44,7 @@ static void ether_init()
 	mask.addr = 0x00FFFFFF;
 	gw.addr = 0x0101A8C0;
 	uint8_t mac[6] = {0xb0,0x6e,0xbf,0x37,0x50,0xb0};
+//	uint8_t mac[6] = {0x20,0x0d,0xb0,0x2c,0xf6,0x54};
 
 	t_netif_set_mac(&netif0,mac);
 	t_netif_set_addr(&netif0,&ip,&mask,&gw);
@@ -64,6 +65,7 @@ int main2()
 	t_tcpip_init();
 	t_arp_init();
 	ether_init();
+	t_udp_init();
 
 #ifdef T_TEST_ARP
 	t_arp_test(&netif0);

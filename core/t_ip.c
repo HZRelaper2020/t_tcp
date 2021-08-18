@@ -3,7 +3,7 @@
 t_err_t t_ip_input(struct t_pbuf *p,struct t_netif* inp)
 {
 	int ret = 0;
-	t_pbuf_header(p,14);
+	t_pbuf_header(p,14); // header 14
 
 	struct  t_ip_hdr* iphdr = (struct t_ip_hdr*)p->payload;
 
@@ -15,7 +15,10 @@ t_err_t t_ip_input(struct t_pbuf *p,struct t_netif* inp)
 		if (p->len > iphdrlen){
 			switch(T_IPH_PROTO(iphdr)){
 				case T_IP_PROTO_ICMP:
-					t_icmp_input(p,inp);
+					ret = t_icmp_input(p,inp);
+					break;
+				case T_IP_PROTO_UDP:
+					ret = t_udp_input(inp,p);
 					break;
 				default:
 					break;
@@ -88,6 +91,7 @@ int t_ip_output(struct t_netif* inp,struct t_pbuf* p,struct t_ip_addr *src,
 	T_IPH_OFFSET_SET(iphdr,htons(T_IP_DF));
 
 	t_ip_addr_set(&(iphdr->src), src);
+	iphdr->_chksum = 0;
 	T_IPH_CHKSUM_SET(iphdr, t_inet_chksum(iphdr, T_IP_HLEN));
 
 

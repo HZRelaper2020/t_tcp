@@ -11,6 +11,7 @@ sources += core/t_memp.c
 sources += core/t_arp.c
 sources += core/t_icmp.c
 sources += core/t_inet.c
+sources += core/t_udp.c
 
 sources += user/s_main.c
 
@@ -20,10 +21,12 @@ INC += -I./user
 INC += -I./include/ipv4
 
 FLAGS := -g
+#FLAGS += -Xlinker -Map=file.map
 #FLAGS += -DT_TEST_MALLOC
 #FLAGS += -DT_TEST_ARP
 #FLAGS += -DT_PBUF_TEST
 FLAGS += -DUSER_MAIN
+#FLAGS += -DDEBUG 
 
 main:
 	gcc ${sources} ${FLAGS} -lpcap -lpthread ${INC} 

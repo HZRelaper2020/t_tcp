@@ -52,11 +52,11 @@ static void* pcap_recv_thread(void* param)
 
 		times += 1;
 		
-		if (times%9 == 0){
-//			sleep(0.1);
+		if (times == 200000){
+			break;
 		}
 		recv_callback(buf,len);
-		printf("times:%d,len%d\n",times,len);
+	//	printf("times:%d,len%d\n",times,len);
 	}
 
 	fclose(fd);

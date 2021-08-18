@@ -24,6 +24,7 @@
 #define T_IPH_CHKSUM_SET(hdr, chksum) (hdr)->_chksum = (chksum)
 
 #define T_IP_PROTO_ICMP		1
+#define T_IP_PROTO_UDP		17
 
 #define T_ICMP_ECHO_REQUEST		0x8
 
