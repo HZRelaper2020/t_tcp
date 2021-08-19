@@ -9,10 +9,15 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 
 typedef uint16_t u16_t;
 typedef uint32_t u32_t;
 typedef uint8_t u8_t;
+
+typedef int err_t;
 //#define ERROR(a) do{time_t now;time(&now);printf("%10ld  ",now);printf a;printf("\n");}while(0)
 //#define PRINT(a) do{time_t now;time(&now);printf("%10ld  ",now);printf a;}while(0)
 #define ERROR(a) do{printf a;printf("\n");}while(0)
@@ -49,6 +54,10 @@ static void inline print_hex(const uint8_t* data,int size)
 
 #include "lwip/t_inet.h"
 #include "t_udp.h"
+
+#include "t_api.h"
+#include "t_sockets.h"
+#include "t_api_msg.h"
 
 #pragma pack()
 

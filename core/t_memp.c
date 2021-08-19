@@ -4,15 +4,18 @@ struct t_memp{
 	struct t_memp* next;
 };
 
-static  uint8_t memp_memory[T_MEMP_NUM_TCPIP_MSG * (sizeof(struct t_memp) + sizeof(struct t_tcpip_msg))];
 static struct t_memp * memp_tab[T_MEMP_MAX];
+static  uint8_t memp_memory[T_MEMP_NUM_TCPIP_MSG * (sizeof(struct t_memp) + sizeof(struct t_tcpip_msg)) \
+			+T_MEMP_NUM_NETCONN *(sizeof(struct t_memp) + sizeof(struct t_netconn))];
 
 static const uint16_t memp_sizes[T_MEMP_MAX]={
 	sizeof(struct t_tcpip_msg),
+	sizeof(struct t_netconn),
 };
 
 static const uint16_t memp_num[T_MEMP_MAX] = {
 	T_MEMP_NUM_TCPIP_MSG,
+	T_MEMP_NUM_NETCONN,
 };
 
 void t_memp_init(void)

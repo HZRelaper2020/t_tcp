@@ -24,13 +24,13 @@ int t_udp_input(struct t_netif* inp,struct t_pbuf* p)
 			ERROR(("t_udp_input:p->tot_len < udphdr->len"));
 			ret = -1;
 		}else{
-			struct t_udp_pcb* pcb == t_udp_pcbs;
+			struct t_udp_pcb* pcb = t_udp_pcbs;
 			while( pcb != NULL){
 				pcb = pcb->next;
 			}
 		}
 
 	}
-	printf("recv udp packet\n");
+
 	return ret;
 }

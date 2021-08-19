@@ -9,8 +9,13 @@
 #define T_MEMP_NUM_TCPIP_MSG		50	
 #endif
 
+#ifndef T_MEMP_NUM_NETCONN
+#define T_MEMP_NUM_NETCONN		4
+#endif
+
 typedef enum{
 	T_MEMP_TCPIP_MSG = 0,
+	T_MEMP_NETCONN,
 	T_MEMP_MAX
 }t_memp_t;
 
