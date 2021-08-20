@@ -76,6 +76,8 @@ int main2()
 		char c = getchar();
 		if (c == 32){
 		}else if (c == 0x31){ // 1
+			printf("create socket\n");
+			t_lwip_socket(0,SOCK_DGRAM,0);
 		}
 		printf("input c:%d\n",c);
 	}

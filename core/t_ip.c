@@ -48,7 +48,6 @@ t_err_t t_raw_input(struct t_pbuf *p,struct t_netif* inp)
 	int ret = 0;
 
 	struct t_ether_hdr* header=(struct t_ether_hdr*)p->payload;
-
 	switch(htons(header->frame_type)){
 		case T_ARP_FRAME_TYPE:
 			ret = t_arp_input(p,inp);

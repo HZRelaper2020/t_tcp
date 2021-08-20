@@ -18,6 +18,7 @@ typedef uint32_t u32_t;
 typedef uint8_t u8_t;
 
 typedef int err_t;
+#define ERR_OK 0
 //#define ERROR(a) do{time_t now;time(&now);printf("%10ld  ",now);printf a;printf("\n");}while(0)
 //#define PRINT(a) do{time_t now;time(&now);printf("%10ld  ",now);printf a;}while(0)
 #define ERROR(a) do{printf a;printf("\n");}while(0)
@@ -36,7 +37,6 @@ static void inline print_hex(const uint8_t* data,int size)
 	PRINT(("\n\n"));
 }
 
-#pragma pack(1)
 #include "t_pbuf.h"
 #include "t_memp.h"
 
@@ -59,6 +59,5 @@ static void inline print_hex(const uint8_t* data,int size)
 #include "t_sockets.h"
 #include "t_api_msg.h"
 
-#pragma pack()
 
 #endif

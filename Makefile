@@ -3,6 +3,7 @@ sources := port/for_linux.c
 sources += api/t_tcpip.c 
 sources += api/t_sockets.c
 sources += api/t_api_lib.c
+sources += api/t_api_msg.c
 
 sources += include/arch/t_sys.c
 
@@ -28,7 +29,7 @@ FLAGS := -g
 #FLAGS += -DT_TEST_ARP
 #FLAGS += -DT_PBUF_TEST
 FLAGS += -DUSER_MAIN
-FLAGS += -DDEBUG 
+#FLAGS += -DDEBUG 
 
 main:
 	gcc ${sources} ${FLAGS} -lpcap -lpthread ${INC} 

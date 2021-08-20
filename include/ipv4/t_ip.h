@@ -28,6 +28,15 @@
 
 #define T_ICMP_ECHO_REQUEST		0x8
 
+#define T_IP_PCB struct t_ip_addr local_ip; \
+  struct t_ip_addr remote_ip; \
+   /* Socket options */  \
+  u16_t so_options;      \
+   /* Type Of Service */ \
+  u8_t tos;              \
+  /* Time To Live */     \
+  u8_t ttl
+
 struct t_ether_hdr{
 	uint8_t dst[6];
 	uint8_t src[6];

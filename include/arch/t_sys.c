@@ -36,15 +36,18 @@ t_sys_mbox_t t_sys_mbox_new(int count)
 int t_sys_mbox_post(t_sys_mbox_t mbox, void  * msg)
 {
 	int ret = 0;
+	int sendsize = sizeof(void*);
+	static int temp =0;
+	static int* temp2= &temp;
 
 	if ( mbox == T_SYS_MBOX_NULL){
 		ret = -1;
 		ERROR(("mbox_post:mbox is empty"));
 
-	}else if (msgsnd(mbox,&msg,4,0)){
+	}else if (msgsnd(mbox,(msg == NULL ? (void*)&temp2: (&msg)),sendsize,0)){
 		ret = -1;
 		perror("msgsnd");
-		ERROR(("msgsnd failed"));
+		ERROR(("msgsnd failed %p",msg));
 	}
 
 	return ret;
@@ -54,11 +57,15 @@ int t_sys_mbox_fetch(t_sys_mbox_t mbox, void** msg,int timeout)
 {
 	int ret = 0;
 
+	int recvsize = sizeof(void*);
+	static int temp;
+	static int* temp2 = &temp;
+
 	if ( mbox == T_SYS_MBOX_NULL){
                 ret = -1;
                 ERROR(("mbox_fetch:mbox is empty"));
 
-        }else if (msgrcv(mbox,msg,4,0,0) !=4){
+        }else if (msgrcv(mbox,(msg == NULL?(void*)&temp:msg),recvsize,0,0) !=recvsize){
 		ret = -1;
 		perror("msgrcv");
 		ERROR(("msgrcv failed"));

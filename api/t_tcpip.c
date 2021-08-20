@@ -18,6 +18,7 @@ static void t_tcpip_task(void* arg)
 		if (!t_tcpip_timeout_mbox_fetch(mbox,&msg,1000)){
 			switch(msg->type){
 				case T_TCPIP_MSG_API:
+					t_api_msg_input(msg->msg.apimsg);
 					break;
 				case T_TCPIP_MSG_INPUT:
 					// judge arp or ip
@@ -61,4 +62,18 @@ t_err_t t_tcpip_input(struct t_pbuf*p,struct t_netif* inp)
 	}
 
 	return ret;
+}
+
+void
+t_tcpip_apimsg(struct t_api_msg *apimsg)
+{
+  struct t_tcpip_msg *msg;
+  msg = t_memp_malloc(T_MEMP_TCPIP_MSG);
+  if (msg == NULL) {
+    t_memp_free(T_MEMP_API_MSG, apimsg);
+    return;
+  }
+  msg->type = T_TCPIP_MSG_API;
+  msg->msg.apimsg = apimsg;
+  t_sys_mbox_post(mbox, msg);
 }

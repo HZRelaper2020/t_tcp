@@ -13,9 +13,19 @@
 #define T_MEMP_NUM_NETCONN		4
 #endif
 
+#ifndef T_MEMP_NUM_API_MSG
+#define T_MEMP_NUM_API_MSG		8
+#endif
+
+#ifndef T_MEMP_NUM_UDP_PCB
+#define T_MEMP_NUM_UDP_PCB		2
+#endif
+
 typedef enum{
 	T_MEMP_TCPIP_MSG = 0,
 	T_MEMP_NETCONN,
+	T_MEMP_API_MSG,
+	T_MEMP_UDP_PCB,
 	T_MEMP_MAX
 }t_memp_t;
 

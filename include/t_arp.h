@@ -9,6 +9,7 @@
 
 #define T_HWTYPE_ETHER			0x1
 
+#pragma pack(1)
 struct t_etharp_hdr{
 	struct t_ether_hdr ethhdr;
 	uint16_t hwtype;
@@ -19,8 +20,8 @@ struct t_etharp_hdr{
 	struct t_ip_addr sender_ip;
 	uint8_t target_mac[6];
 	struct t_ip_addr target_ip;
-
 };
+#pragma pack()
 
 void t_arp_init();
 

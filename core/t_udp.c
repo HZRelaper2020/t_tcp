@@ -8,6 +8,18 @@ int t_udp_init()
 	return 0;
 }
 
+struct t_udp_pcb* t_udp_new()
+{
+	struct t_udp_pcb* udp = t_memp_malloc(T_MEMP_UDP_PCB);
+	if (udp == NULL){
+		ERROR(("t_udp_new failed no memory"));
+	}else{
+		memset(udp,0,sizeof(struct t_udp_pcb));
+		udp->ttl = T_UDP_TTL;
+	}
+	return udp;
+}
+
 int t_udp_input(struct t_netif* inp,struct t_pbuf* p)
 {
 	int ret = 0;
