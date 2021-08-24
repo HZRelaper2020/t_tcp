@@ -77,7 +77,10 @@ int main2()
 		if (c == 32){
 		}else if (c == 0x31){ // 1
 			printf("create socket\n");
-			t_lwip_socket(0,SOCK_DGRAM,0);
+			struct t_udp_pcb* udp = t_udp_new();
+			if (udp != NULL){
+			t_udp_bind(udp, &ip,3307);
+			}
 		}
 		printf("input c:%d\n",c);
 	}

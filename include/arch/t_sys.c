@@ -91,3 +91,33 @@ void TASKRESUMEALL()
 		ERROR(("pthread_mutex_unlock failed"));
 	}
 }
+
+#define SEM_MAXCOUNT 100
+static int semcount = 0;
+static sem_t semlist[SEM_MAXCOUNT];
+
+t_sys_sem_t t_sys_sem_new(int initval)
+{
+
+	t_sys_sem_t s = T_SYS_SEM_NULL;
+	if (semcount > SEM_MAXCOUNT-1){
+		ERROR(("t_sys_sem_new semcount is too big"));
+	}else{
+		s = &semlist[semcount];
+		semcount += 1;
+		sem_init(s,0,initval);
+	}
+
+	return s;
+
+}
+
+void t_sys_sem_wait(t_sys_sem_t sem)
+{
+	sem_wait(sem);
+}
+
+void t_sys_sem_signal(t_sys_sem_t sem)
+{
+	sem_post(sem);
+}

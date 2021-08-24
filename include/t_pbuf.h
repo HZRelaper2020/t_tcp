@@ -7,6 +7,10 @@
 #define T_PBUF_FLAG_POOL 	0x1
 #define T_PBUF_FALG_RAM		0x4
 
+#define T_PBUF_TRANSPORT	(-20)
+#define T_PBUF_RAM		0
+#define T_PBUF_REF		0
+
 struct t_pbuf{
 	struct t_pbuf *next;
 	void* payload;

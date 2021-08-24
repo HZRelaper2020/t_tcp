@@ -21,4 +21,9 @@ void TASKSUSPENDALL();
 
 void TASKRESUMEALL();
 
+t_sys_sem_t t_sys_sem_new(int initval);
+
+void t_sys_sem_wait(t_sys_sem_t sem);
+
+void t_sys_sem_signal(t_sys_sem_t sem);
 #endif

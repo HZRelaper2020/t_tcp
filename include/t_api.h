@@ -6,7 +6,7 @@ enum t_netconn_type{
 };
 
 enum t_netconn_evt{
-	aaa
+	T_NETCONN_EVT_RCVPLUS
 };
 
 enum t_netconn_state{
@@ -30,8 +30,40 @@ struct t_netconn{
   void (* callback)(struct t_netconn *, enum t_netconn_evt, u16_t len);
 };
 
+struct t_netbuf {
+  struct t_pbuf *p, *ptr;
+  struct t_ip_addr *fromaddr;
+  u16_t fromport;
+  err_t err;
+};
+
 struct
 t_netconn *t_netconn_new(enum t_netconn_type t);
+void *
+t_netbuf_alloc(struct t_netbuf *buf, u16_t size);
+void
+t_netbuf_free(struct t_netbuf *buf);
+void
+t_netbuf_ref(struct t_netbuf *buf, void *dataptr, u16_t size);
+u16_t
+t_netbuf_len(struct t_netbuf *buf);
+err_t
+t_netbuf_data(struct t_netbuf *buf, void **dataptr, u16_t *len);
+u8_t
+t_netbuf_next(struct t_netbuf *buf);
+void
+t_netbuf_first(struct t_netbuf *buf);
+void
+t_netbuf_copy_partial(struct t_netbuf *buf, void *dataptr, u16_t len, u16_t offset);
+void
+t_netbuf_copy(struct t_netbuf *buf, void *dataptr, u16_t len);
+struct t_ip_addr *
+t_netbuf_fromaddr(struct t_netbuf *buf);
+u16_t
+t_netbuf_fromport(struct t_netbuf *buf);
+struct
+t_netbuf *t_netbuf_new(void);
+void t_netbuf_delete(struct t_netbuf *buf);
 
 
 struct

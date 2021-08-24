@@ -13,9 +13,16 @@
 #define t_ip_addr_set(dest, src) (dest)->addr = \
                                ((src) == NULL? 0:\
                                (src)->addr)
+#define t_ip_addr_set(dest, src) (dest)->addr = \
+                               ((src) == NULL? 0:\
+                               (src)->addr)
+
 struct t_ip_addr{
 	uint32_t addr;
 };
 
+struct in_addr{
+	u32_t s_addr;
+};
 #endif
 

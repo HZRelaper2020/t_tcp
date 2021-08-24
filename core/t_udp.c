@@ -20,6 +20,47 @@ struct t_udp_pcb* t_udp_new()
 	return udp;
 }
 
+err_t
+t_udp_bind(struct t_udp_pcb *pcb, struct t_ip_addr *ipaddr, u16_t port)
+{
+	struct t_udp_pcb *ipcb;
+	u8_t rebind;
+	static int start_count = 0;
+	rebind = 0;
+	/* Check for double bind and rebind of the same pcb */
+	for (ipcb = t_udp_pcbs; ipcb != NULL; ipcb = ipcb->next) {
+	/* is this UDP PCB already on active list? */
+		if (pcb == ipcb) {
+	/* pcb already in list, just rebind */
+			rebind = 1;
+			break;
+		}
+	}
+
+	t_ip_addr_set(&pcb->local_ip, ipaddr);
+
+
+	if (port == 0) {
+#ifndef UDP_LOCAL_PORT_RANGE_START
+#define UDP_LOCAL_PORT_RANGE_START 4096
+#define UDP_LOCAL_PORT_RANGE_END   0x7fff
+#endif
+		port = UDP_LOCAL_PORT_RANGE_START + start_count;
+		start_count += 1;
+		ipcb = t_udp_pcbs ;
+
+		pcb->local_port = port;
+		/* pcb not active yet? */
+		if (rebind == 0) {
+		/* place the PCB on the active list if not already there */
+			pcb->next = t_udp_pcbs;
+			t_udp_pcbs = pcb;
+		}
+	}
+
+	return 0;
+}
+
 int t_udp_input(struct t_netif* inp,struct t_pbuf* p)
 {
 	int ret = 0;
