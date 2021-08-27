@@ -16,6 +16,7 @@
 typedef uint16_t u16_t;
 typedef uint32_t u32_t;
 typedef uint8_t u8_t;
+typedef int16_t s16_t;
 
 typedef int err_t;
 #define ERR_OK 0
@@ -23,6 +24,10 @@ typedef int err_t;
 //#define PRINT(a) do{time_t now;time(&now);printf("%10ld  ",now);printf a;}while(0)
 #define ERROR(a) do{printf a;printf("\n");}while(0)
 #define PRINT(a) do{printf a;}while(0)
+
+#define PACK_STRUCT_FIELD(a) a
+#define PACK_STRUCT_STRUCT 
+#define LWIP_CALLBACK_API	1
 
 #include "user/t_lwipopts.h"
 
@@ -54,10 +59,12 @@ static void inline print_hex(const uint8_t* data,int size)
 
 #include "lwip/t_inet.h"
 #include "t_udp.h"
+#include "t_tcp.h"
 
 #include "t_api.h"
 #include "t_sockets.h"
 #include "t_api_msg.h"
+
 
 
 #endif

@@ -1,5 +1,22 @@
 #include "t_common.h"
 
+struct t_netif *
+t_ip_route(struct t_ip_addr *dest)
+{
+  struct t_netif *netif;
+
+  /* iterate through netifs */
+  for(netif = netif_list; netif != NULL; netif = netif->next) {
+    /* network mask matches? */
+    if (t_ip_addr_netcmp(dest, &(netif->ip_addr), &(netif->netmask))) {
+      /* return netif on which to forward IP packet */
+      return netif;
+    }
+  }
+  /* no matching netif found, use default netif */
+  return netif_default;
+}
+
 t_err_t t_ip_input(struct t_pbuf *p,struct t_netif* inp)
 {
 	int ret = 0;
@@ -19,6 +36,9 @@ t_err_t t_ip_input(struct t_pbuf *p,struct t_netif* inp)
 					break;
 				case T_IP_PROTO_UDP:
 					ret = t_udp_input(inp,p);
+					break;
+				case T_IP_PROTO_TCP:
+					ret = t_tcp_input(inp,p);
 					break;
 				default:
 					break;
@@ -68,6 +88,18 @@ t_err_t t_raw_input(struct t_pbuf *p,struct t_netif* inp)
 	return ret;
 }
 
+/*
+ * @brief only for test
+ * @param [in] ip: input ip
+ * @param [out] mac : output mac address
+ *
+ */
+static void get_mac_from_ip(struct t_ip_addr* ip,uint8_t* mac)
+{
+	uint8_t buf[6] = {0xf8,0x63,0x3f,0x6b,0x2c,0xbd};
+	memcpy(mac,buf,6);
+}
+
 int t_ip_output(struct t_netif* inp,struct t_pbuf* p,struct t_ip_addr *src,
 		struct t_ip_addr * dst,
 		uint8_t ttl,uint8_t tos, uint8_t proto)
@@ -98,9 +130,11 @@ int t_ip_output(struct t_netif* inp,struct t_pbuf* p,struct t_ip_addr *src,
 		ERROR(("t_bpbuf_header failed"));
 	}else{
 		struct t_ether_hdr *ethhdr =(struct t_ether_hdr*)p->payload;
-		uint8_t buf[6] = {0xf8,0x63,0x3f,0x6b,0x2c,0xbd};
+		uint8_t buf[6];
 		//uint8_t buf[6] = {0xb0,0x25,0xaa,0x26,0xca,0x7c};
 		// ether mac
+		get_mac_from_ip(dst,buf);
+
 		memcpy(ethhdr->dst,buf,6);
 		memcpy(ethhdr->src,inp->hwaddr,6);
 		ethhdr->frame_type = htons(0x800);

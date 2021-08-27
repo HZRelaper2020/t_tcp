@@ -9,6 +9,8 @@
 #define ip_addr_isbroadcast(a)	((a)->addr == 0xFFFFFFFF)
 
 #define htons(a)  (((a)<<8&0xff00) + ((a)>>8&0x00ff))
+#define ntohs(a)  (((a)<<8&0xff00) + ((a)>>8&0x00ff))
+#define htonl(a)  (((a)<<24&0xff000000) + ((a)<<8&0x00ff0000) + ((a)>>8&0x0000ff00) + ((a)>>24&0xff))
 
 #define t_ip_addr_set(dest, src) (dest)->addr = \
                                ((src) == NULL? 0:\

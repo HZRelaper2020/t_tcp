@@ -28,6 +28,10 @@ struct t_udp_pcb{
 	void *recv_arg;
 };
 
+#define T_UDP_FLAGS_NOCHKSUM 0x01U
+#define T_UDP_FLAGS_UDPLITE  0x02U
+#define T_UDP_FLAGS_CONNECTED  0x04U
+
 int t_udp_init();
 
 struct t_udp_pcb* t_udp_new();
@@ -36,5 +40,25 @@ int t_udp_input(struct t_netif* inp,struct t_pbuf* p);
 
 err_t
 t_udp_bind(struct t_udp_pcb *pcb, struct t_ip_addr *ipaddr, u16_t port);
+
+int t_udp_connect(struct t_udp_pcb *pcb, struct t_ip_addr *ipaddr, u16_t port);
+
+err_t
+t_udp_send(struct t_udp_pcb *pcb, struct t_pbuf *p);
+
+void
+t_udp_remove(struct t_udp_pcb *pcb);
+
+void
+t_set_udp_recv(struct t_udp_pcb *pcb,
+   void (* recv)(void *arg, struct t_udp_pcb *upcb, struct t_pbuf *p,
+           struct t_ip_addr *addr, u16_t port),
+   void *recv_arg);
+
+void
+t_set_udp_recv(struct t_udp_pcb *pcb,
+   void (* recv)(void *arg, struct t_udp_pcb *upcb, struct t_pbuf *p,
+           struct t_ip_addr *addr, u16_t port),
+   void *recv_arg);
 
 #endif

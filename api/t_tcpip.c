@@ -18,7 +18,7 @@ static void t_tcpip_task(void* arg)
 		if (!t_tcpip_timeout_mbox_fetch(mbox,&msg,1000)){
 			switch(msg->type){
 				case T_TCPIP_MSG_API:
-					t_api_msg_input(msg->msg.apimsg);
+					//t_api_msg_input(msg->msg.apimsg);
 					break;
 				case T_TCPIP_MSG_INPUT:
 					// judge arp or ip

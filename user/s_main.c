@@ -54,6 +54,18 @@ static void ether_init()
 
 }
 
+static void udp_recv_data(void *arg, struct t_udp_pcb *upcb, struct t_pbuf *p,
+           struct t_ip_addr *addr, u16_t port){
+	struct t_udp_hdr* udphdr = (struct t_udp_hdr*) p->payload;
+	t_pbuf_header(p,T_UDP_HLEN);
+
+	uint8_t* buf = (uint8_t*)p->payload;
+	uint16_t len = htons(udphdr->len) - T_UDP_HLEN;
+
+	printf("recv udp data %d\n",len);
+	print_hex(buf, len);
+}
+
 #ifdef USER_MAIN
 int main()
 #else
@@ -64,9 +76,10 @@ int main2()
 	t_memp_init();
 	t_tcpip_init();
 	t_arp_init();
-	ether_init();
 	t_udp_init();
+	t_tcp_init();
 
+	ether_init();
 #ifdef T_TEST_ARP
 	t_arp_test(&netif0);
 #endif
@@ -74,15 +87,38 @@ int main2()
 	uint32_t times = 0;
 	while(1){
 		char c = getchar();
+		printf("input c:%d\n",c);
+
 		if (c == 32){
+			PRINT(("user exit\n"));
+			exit(0);
 		}else if (c == 0x31){ // 1
-			printf("create socket\n");
+
+			//while(1){
+			times += 1;
+			printf("udp test\n");
 			struct t_udp_pcb* udp = t_udp_new();
 			if (udp != NULL){
-			t_udp_bind(udp, &ip,3307);
+				t_udp_bind(udp, &ip,3307+times);
+
+				struct t_ip_addr dst;
+				dst.addr = 0x6501A8C0;
+				t_udp_connect(udp,&dst,8837);
+
+				t_set_udp_recv(udp,udp_recv_data,NULL);
+
+				struct t_pbuf *p = t_pbuf_alloc(28 + 14,10,T_PBUF_FLAG_POOL);
+				memcpy(p->payload,"1234567890",10);
+				t_udp_send(udp,p);
+				sleep(2);
+				t_udp_remove(udp);
 			}
+			//}
+
+		}else if (c == 0x32){ // 2
+			printf("tcp test\n");
+			struct t_tcp_pcb * tcp = t_tcp_new();
 		}
-		printf("input c:%d\n",c);
 	}
 	return 0;
 }

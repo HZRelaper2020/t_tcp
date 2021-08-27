@@ -12,6 +12,8 @@ static  uint8_t memp_memory[
 		+T_MEMP_NUM_API_MSG *(sizeof(struct t_memp) +	sizeof(struct t_api_msg)) 
 		+T_MEMP_NUM_UDP_PCB *(sizeof(struct t_memp) +	sizeof(struct t_udp_pcb)) 
 		+T_MEMP_NUM_NETBUF  *(sizeof(struct t_memp) +	sizeof(struct t_netbuf)) 
+		+T_MEMP_NUM_TCP_PCB  *(sizeof(struct t_memp) +	sizeof(struct t_tcp_pcb)) 
+		+T_MEMP_NUM_TCP_SEG  *(sizeof(struct t_memp) +	sizeof(struct t_tcp_seg)) 
 ];
 
 static const uint16_t memp_sizes[T_MEMP_MAX]={
@@ -20,6 +22,8 @@ static const uint16_t memp_sizes[T_MEMP_MAX]={
 	sizeof(struct t_api_msg),
 	sizeof(struct t_udp_pcb),
 	sizeof(struct t_netbuf),
+	sizeof(struct t_tcp_pcb),
+	sizeof(struct t_tcp_seg),
 };
 
 static const uint16_t memp_num[T_MEMP_MAX] = {
@@ -28,6 +32,8 @@ static const uint16_t memp_num[T_MEMP_MAX] = {
 	T_MEMP_NUM_API_MSG,
 	T_MEMP_NUM_UDP_PCB,
 	T_MEMP_NUM_NETBUF,
+	T_MEMP_NUM_TCP_PCB,
+	T_MEMP_NUM_TCP_SEG,
 };
 
 void t_memp_init(void)

@@ -1,8 +1,8 @@
 #include "t_common.h"
 #include "t_netif.h"
 
-static struct t_netif *netif_list = NULL;
-static struct t_netif *netif_default = NULL;
+struct t_netif *netif_list = NULL;
+struct t_netif *netif_default = NULL;
 
 void t_netif_init()
 {

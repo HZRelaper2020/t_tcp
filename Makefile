@@ -1,9 +1,9 @@
 sources := port/for_linux.c 
 
 sources += api/t_tcpip.c 
-sources += api/t_sockets.c
-sources += api/t_api_lib.c
-sources += api/t_api_msg.c
+#sources += api/t_sockets.c
+#sources += api/t_api_lib.c
+#sources += api/t_api_msg.c
 
 sources += include/arch/t_sys.c
 
@@ -15,6 +15,8 @@ sources += core/t_arp.c
 sources += core/t_icmp.c
 sources += core/t_inet.c
 sources += core/t_udp.c
+sources += core/t_tcp.c
+sources += core/t_tcp_out.c
 
 sources += user/s_main.c
 

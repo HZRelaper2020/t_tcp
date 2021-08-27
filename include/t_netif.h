@@ -22,6 +22,8 @@ struct t_netif{
 	uint8_t num;
 };
 
+extern struct t_netif *netif_list;
+extern struct t_netif *netif_default;
 #define NETIF_FLAG_UP 			0x1U
 #define NETIF_FLAG_BROADCAST 		0x2U
 #define NETIF_FLAG_DHCP			0x8U

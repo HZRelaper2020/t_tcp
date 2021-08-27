@@ -25,6 +25,7 @@
 
 #define T_IP_PROTO_ICMP		1
 #define T_IP_PROTO_UDP		17
+#define T_IP_PROTO_TCP		6
 
 #define T_ICMP_ECHO_REQUEST		0x8
 
@@ -60,6 +61,9 @@ struct t_etherip_hdr{
 	struct t_ether_hdr eth_header;
 	struct t_ip_hdr ip;
 };
+
+struct t_netif *
+t_ip_route(struct t_ip_addr *dest);
 
 t_err_t t_ip_input(struct t_pbuf *p,struct t_netif* inp);
 
