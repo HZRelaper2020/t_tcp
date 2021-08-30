@@ -1,28 +1,53 @@
 #include "t_common.h"
 
 uint32_t tcp_ticks;
+struct t_tcp_pcb *tcp_active_pcbs;
 
 int t_tcp_init()
 {
 	int ret = 0;
-
-	tcp_ticks = 0;
-	return ret;
-}
-
-int t_tcp_input(struct t_netif* inp,struct t_pbuf* p)
-{
-	int ret = 0;
-
 	
+	tcp_ticks = 0;
+	tcp_active_pcbs = NULL;
 	return ret;
 }
+
 
 static uint16_t t_tcp_new_port()
 {
 	static int times = 0;
 	times += 1;
 	return 4096 + times;
+}
+
+u8_t
+t_tcp_seg_free(struct t_tcp_seg *seg)
+{
+  u8_t count = 0;
+
+  if (seg != NULL) {
+    if (seg->p != NULL) {
+      count = t_pbuf_free(seg->p);
+#if TCP_DEBUG
+      seg->p = NULL;
+#endif /* TCP_DEBUG */
+    }
+    t_memp_free(T_MEMP_TCP_SEG, seg);
+  }
+  return count;
+}
+
+u8_t
+t_tcp_segs_free(struct t_tcp_seg *seg)
+{
+  u8_t count = 0;
+  struct t_tcp_seg *next;
+  while (seg != NULL) {
+    next = seg->next;
+    count += t_tcp_seg_free(seg);
+    seg = next;
+  }
+  return count;
 }
 
 static u32_t
@@ -113,16 +138,18 @@ t_tcp_connect(struct t_tcp_pcb *pcb, struct t_ip_addr *ipaddr, u16_t port,
   #if LWIP_CALLBACK_API
   pcb->connected = connected;
   #endif /* LWIP_CALLBACK_API */
-    optdata = htonl(((u32_t)2 << 24) |
+
+  T_TCP_REG(&tcp_active_pcbs, pcb);
+
+  optdata = htonl(((u32_t)2 << 24) |
       ((u32_t)4 << 16) |
       (((u32_t)pcb->mss / 256) << 8) |
       (pcb->mss & 255));
 
   ret = t_tcp_enqueue(pcb, NULL, 0, TCP_SYN, 0, (u8_t *)&optdata, 4);
-#if 0
+
   if (ret == ERR_OK) {
-    tcp_output(pcb);
+    t_tcp_output(pcb);
   }
-#endif
   return ret;
 }

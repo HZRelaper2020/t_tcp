@@ -17,6 +17,7 @@ sources += core/t_inet.c
 sources += core/t_udp.c
 sources += core/t_tcp.c
 sources += core/t_tcp_out.c
+sources += core/t_tcp_in.c
 
 sources += user/s_main.c
 

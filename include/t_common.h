@@ -17,17 +17,22 @@ typedef uint16_t u16_t;
 typedef uint32_t u32_t;
 typedef uint8_t u8_t;
 typedef int16_t s16_t;
+typedef int8_t s8_t;
+typedef int32_t s32_t;
 
 typedef int err_t;
 #define ERR_OK 0
 //#define ERROR(a) do{time_t now;time(&now);printf("%10ld  ",now);printf a;printf("\n");}while(0)
 //#define PRINT(a) do{time_t now;time(&now);printf("%10ld  ",now);printf a;}while(0)
+#define LWIP_DEBUGF(a,b) do{printf b ;}while(0);
 #define ERROR(a) do{printf a;printf("\n");}while(0)
 #define PRINT(a) do{printf a;}while(0)
 
 #define PACK_STRUCT_FIELD(a) a
 #define PACK_STRUCT_STRUCT 
 #define LWIP_CALLBACK_API	1
+
+#define MIN(a,b) ((a)>(b)?(b):(a))
 
 #include "user/t_lwipopts.h"
 

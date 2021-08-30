@@ -66,6 +66,12 @@ static void udp_recv_data(void *arg, struct t_udp_pcb *upcb, struct t_pbuf *p,
 	print_hex(buf, len);
 }
 
+static err_t tcp_connected(void *arg, struct t_tcp_pcb *tpcb, err_t err)
+{
+	printf("tcp connected ok\n");
+	return 0;
+}
+
 #ifdef USER_MAIN
 int main()
 #else
@@ -118,6 +124,9 @@ int main2()
 		}else if (c == 0x32){ // 2
 			printf("tcp test\n");
 			struct t_tcp_pcb * tcp = t_tcp_new();
+			struct t_ip_addr dst;
+			dst.addr = 0x6501A8C0;
+			t_tcp_connect(tcp, &dst, 8837,tcp_connected);
 		}
 	}
 	return 0;

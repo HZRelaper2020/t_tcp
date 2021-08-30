@@ -179,6 +179,15 @@ int t_pbuf_header(struct t_pbuf *p,int increment)
 	return ret;
 }
 
+int t_pbuf_cat(struct t_pbuf*p,struct t_pbuf*p1)
+{
+	int ret =0;
+
+	memcpy(p->payload + p->len,p1->payload,p1->len);
+	p->len += p1->len;
+	p->tot_len += p1->len;
+	return ret;
+}
 #ifdef T_PBUF_TEST
 int main()
 {

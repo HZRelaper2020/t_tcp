@@ -7,7 +7,7 @@
 #define T_PBUF_FLAG_POOL 	0x1
 #define T_PBUF_FALG_RAM		0x4
 
-#define T_PBUF_TRANSPORT	(-20)
+#define T_PBUF_TRANSPORT	(14+20+20)
 #define T_PBUF_RAM		0
 #define T_PBUF_REF		0
 
@@ -31,5 +31,7 @@ int t_pbuf_free(struct t_pbuf* p);
 int t_pbuf_copy_data(struct t_pbuf*p,uint8_t* data,int size);
 
 int t_pbuf_header(struct t_pbuf *p,int increment);
+
+int t_pbuf_cat(struct t_pbuf*p,struct t_pbuf*p1);
 
 #endif

@@ -1,6 +1,9 @@
 #ifndef SOURCE_T_TCP__H
 #define SOURCE_T_TCP__H
 
+#define T_TCP_HLEN		20
+
+
 #define T_TCP_PRIO_MIN    1
 #define T_TCP_PRIO_NORMAL 64
 #define T_TCP_PRIO_MAX    127
@@ -8,6 +11,11 @@
 #ifndef T_TCP_TTL
 #define T_TCP_TTL	255
 #endif
+
+#define T_TCP_SEQ_LT(a,b)     ((s32_t)((a)-(b)) < 0)
+#define T_TCP_SEQ_LEQ(a,b)    ((s32_t)((a)-(b)) <= 0)
+#define T_TCP_SEQ_GT(a,b)     ((s32_t)((a)-(b)) > 0)
+#define T_TCP_SEQ_GEQ(a,b)    ((s32_t)((a)-(b)) >= 0)
 
 #ifndef T_TCP_TMR_INTERVAL
 #define T_TCP_TMR_INTERVAL       250  /* The TCP timer interval in
@@ -37,6 +45,26 @@
 #define TCP_ECE 0x40U
 #define TCP_CWR 0x80U
 
+#define TCP_FLAGS 0x3fU
+
+#define T_TCPH_OFFSET(phdr) (ntohs((phdr)->_hdrlen_rsvd_flags) >> 8)
+#define T_TCPH_HDRLEN(phdr) (ntohs((phdr)->_hdrlen_rsvd_flags) >> 12)
+#define T_TCPH_FLAGS(phdr)  (ntohs((phdr)->_hdrlen_rsvd_flags) & TCP_FLAGS)
+
+#define T_TCPH_OFFSET_SET(phdr, offset) (phdr)->_hdrlen_rsvd_flags = htons(((offset) << 8) | T_TCPH_FLAGS(phdr))
+#define T_TCPH_HDRLEN_SET(phdr, len) (phdr)->_hdrlen_rsvd_flags = htons(((len) << 12) | T_TCPH_FLAGS(phdr))
+#define T_TCPH_FLAGS_SET(phdr, flags) (phdr)->_hdrlen_rsvd_flags = htons((ntohs((phdr)->_hdrlen_rsvd_flags) & ~TCP_FLAGS) | (flags))
+#define T_TCPH_SET_FLAG(phdr, flags ) (phdr)->_hdrlen_rsvd_flags = htons(ntohs((phdr)->_hdrlen_rsvd_flags) | (flags))
+#define T_TCPH_UNSET_FLAG(phdr, flags) (phdr)->_hdrlen_rsvd_flags = htons(ntohs((phdr)->_hdrlen_rsvd_flags) | (T_TCPH_FLAGS(phdr) & ~(flags)) )
+
+#define T_TCP_TCPLEN(seg) ((seg)->len + ((T_TCPH_FLAGS((seg)->tcphdr) & TCP_FIN || \
+          T_TCPH_FLAGS((seg)->tcphdr) & TCP_SYN)? 1: 0))
+
+#define T_TCP_REG(pcbs, npcb) do { \
+                            npcb->next = *pcbs; \
+                            *(pcbs) = npcb; \
+                            } while(0)
+/*               tcp_timer_needed(); \  */
 enum tcp_state {
   CLOSED      = 0,
   LISTEN      = 1,
@@ -52,7 +80,7 @@ enum tcp_state {
 };
 
 #pragma pack(1)
-struct tcp_hdr {
+struct t_tcp_hdr {
   PACK_STRUCT_FIELD(u16_t src);
   PACK_STRUCT_FIELD(u16_t dest);
   PACK_STRUCT_FIELD(u32_t seqno);
@@ -170,6 +198,8 @@ struct t_tcp_pcb {
   u8_t keep_cnt;
 };
 
+extern uint32_t tcp_ticks;
+
 int t_tcp_init();
 
 int t_tcp_input(struct t_netif* inp,struct t_pbuf* p);
@@ -177,8 +207,21 @@ int t_tcp_input(struct t_netif* inp,struct t_pbuf* p);
 struct t_tcp_pcb * t_tcp_new(void);
 
 err_t
+t_tcp_connect(struct t_tcp_pcb *pcb, struct t_ip_addr *ipaddr, u16_t port,
+      err_t (* connected)(void *arg, struct t_tcp_pcb *tpcb, err_t err));
+
+u8_t
+t_tcp_seg_free(struct t_tcp_seg *seg);
+
+u8_t
+t_tcp_segs_free(struct t_tcp_seg *seg);
+
+err_t
 t_tcp_enqueue(struct t_tcp_pcb *pcb, void *arg, u16_t len,
   u8_t flags, u8_t copy,
   u8_t *optdata, u8_t optlen);
+
+err_t
+t_tcp_output(struct t_tcp_pcb *pcb);
 
 #endif
