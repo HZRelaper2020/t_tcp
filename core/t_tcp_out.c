@@ -1,4 +1,23 @@
 #include "t_common.h"
+
+
+err_t
+t_tcp_write(struct t_tcp_pcb *pcb, const void *arg, u16_t len, u8_t copy)
+{
+  /* connection is in valid state for data transmission? */
+  if (pcb->state == ESTABLISHED ||
+     pcb->state == CLOSE_WAIT ||
+     pcb->state == SYN_SENT ||
+     pcb->state == SYN_RCVD) {
+    if (len > 0) {
+      return t_tcp_enqueue(pcb, (void *)arg, len, 0, copy, NULL, 0);
+    }
+    return ERR_OK;
+  } else {
+    return ERR_CONN;
+  }
+}
+
 /**
  * Enqueue either data or TCP options (but not both) for tranmission
  *
@@ -283,6 +302,7 @@ t_tcp_output(struct t_tcp_pcb *pcb)
   struct t_pbuf *p;
   struct t_tcp_hdr *tcphdr;
   struct t_tcp_seg *seg, *useg;
+  struct t_netif *netif;
   u32_t wnd;
 
 #if 0
@@ -301,6 +321,40 @@ t_tcp_output(struct t_tcp_pcb *pcb)
     for (; useg->next != NULL; useg = useg->next);
   }
 
+  if (pcb->flags & TF_ACK_NOW &&
+     (seg == NULL ||
+      ntohl(seg->tcphdr->seqno) - pcb->lastack + seg->len > wnd)) {
+
+    netif = t_ip_route(&(pcb->local_ip));
+    p = t_pbuf_alloc(T_PBUF_IP, T_TCP_HLEN, T_PBUF_FLAG_POOL);
+    if (p == NULL) {
+      ERROR(("tcp_output: (ACK) could not allocate pbuf\n"));
+      return ERR_BUF;
+    }
+    /* remove ACK flags from the PCB, as we send an empty ACK now */
+    pcb->flags &= ~(TF_ACK_DELAY | TF_ACK_NOW);
+
+    tcphdr = p->payload;
+    tcphdr->src = htons(pcb->local_port);
+    tcphdr->dest = htons(pcb->remote_port);
+    tcphdr->seqno = htonl(pcb->snd_nxt);
+    tcphdr->ackno = htonl(pcb->rcv_nxt);
+    T_TCPH_FLAGS_SET(tcphdr, TCP_ACK);
+    tcphdr->wnd = htons(pcb->rcv_wnd);
+    tcphdr->urgp = 0;
+    T_TCPH_HDRLEN_SET(tcphdr, 5);
+
+    tcphdr->chksum = 0;
+
+    tcphdr->chksum = t_inet_chksum_pseudo(p, &(pcb->local_ip), &(pcb->remote_ip),
+          T_IP_PROTO_TCP, p->tot_len);
+
+    t_ip_output(netif,p, &(pcb->local_ip), &(pcb->remote_ip), pcb->ttl, pcb->tos, \
+        T_IP_PROTO_TCP);
+    t_pbuf_free(p);
+
+    return ERR_OK;
+  }
  /* data available and window allows it to be sent? */
   while (seg != NULL &&
   ntohl(seg->tcphdr->seqno) - pcb->lastack + seg->len <= wnd) {
@@ -349,4 +403,38 @@ t_tcp_output(struct t_tcp_pcb *pcb)
   return ERR_OK;
 }
 
+
+void
+tcp_keepalive(struct t_tcp_pcb *pcb)
+{
+   struct t_pbuf *p;
+   struct t_tcp_hdr *tcphdr;
+
+
+   
+   p = t_pbuf_alloc(T_PBUF_IP, T_TCP_HLEN, T_PBUF_FLAG_POOL);
+
+   if(p == NULL) {
+      ERROR(("tcp_keepalive: could not allocate memory for pbuf\n"));
+      return;
+   }
+
+   tcphdr = p->payload;
+   tcphdr->src = htons(pcb->local_port);
+   tcphdr->dest = htons(pcb->remote_port);
+   tcphdr->seqno = htonl(pcb->snd_nxt - 1);
+   tcphdr->ackno = htonl(pcb->rcv_nxt);
+   tcphdr->wnd = htons(pcb->rcv_wnd);
+   tcphdr->urgp = 0;
+   T_TCPH_HDRLEN_SET(tcphdr, 5);
+   
+   tcphdr->chksum = 0;
+   tcphdr->chksum = t_inet_chksum_pseudo(p, &pcb->local_ip, &pcb->remote_ip, T_IP_PROTO_TCP, p->tot_len);
+
+   /* Send output to IP */
+  t_ip_output(NULL,p, &pcb->local_ip, &pcb->remote_ip, pcb->ttl, 0, T_IP_PROTO_TCP);
+
+  t_pbuf_free(p);
+
+}
 

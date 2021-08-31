@@ -105,6 +105,11 @@ int t_ip_output(struct t_netif* inp,struct t_pbuf* p,struct t_ip_addr *src,
 		uint8_t ttl,uint8_t tos, uint8_t proto)
 {
 	int ret =0;
+
+	if (inp == NULL){
+		inp = t_ip_route(dst);
+	}
+
 	if (src == NULL){
 		src = & inp->ip_addr;
 	}

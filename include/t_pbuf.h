@@ -8,6 +8,8 @@
 #define T_PBUF_FALG_RAM		0x4
 
 #define T_PBUF_TRANSPORT	(14+20+20)
+#define T_PBUF_IP		(14+20)
+
 #define T_PBUF_RAM		0
 #define T_PBUF_REF		0
 

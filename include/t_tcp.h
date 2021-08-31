@@ -198,6 +198,38 @@ struct t_tcp_pcb {
   u8_t keep_cnt;
 };
 
+#define t_tcp_ack(pcb)     if((pcb)->flags & TF_ACK_DELAY) { \
+                            (pcb)->flags &= ~TF_ACK_DELAY; \
+                            (pcb)->flags |= TF_ACK_NOW; \
+                         } else { \
+                            (pcb)->flags |= TF_ACK_DELAY; \
+                         }
+
+#define t_tcp_ack_now(pcb) (pcb)->flags |= TF_ACK_NOW
+
+//                         t_tcp_output(pcb)
+
+
+#define T_TCP_EVENT_ACCEPT(pcb,err,ret)     \
+                        if((pcb)->accept != NULL) \
+                        (ret = (pcb)->accept((pcb)->callback_arg,(pcb),(err)))
+#define T_TCP_EVENT_SENT(pcb,space,ret) \
+                        if((pcb)->sent != NULL) \
+                        (ret = (pcb)->sent((pcb)->callback_arg,(pcb),(space)))
+#define T_TCP_EVENT_RECV(pcb,p,err,ret) \
+                        if((pcb)->recv != NULL) \
+                        { ret = (pcb)->recv((pcb)->callback_arg,(pcb),(p),(err)); } else { \
+                          if (p) pbuf_free(p); }
+#define T_TCP_EVENT_CONNECTED(pcb,err,ret) \
+                        if((pcb)->connected != NULL) \
+                        (ret = (pcb)->connected((pcb)->callback_arg,(pcb),(err)))
+#define T_TCP_EVENT_POLL(pcb,ret) \
+                        if((pcb)->poll != NULL) \
+                        (ret = (pcb)->poll((pcb)->callback_arg,(pcb)))
+#define T_TCP_EVENT_ERR(errf,arg,err) \
+                        if((errf) != NULL) \
+                        (errf)((arg),(err))
+
 extern uint32_t tcp_ticks;
 
 int t_tcp_init();
@@ -223,5 +255,10 @@ t_tcp_enqueue(struct t_tcp_pcb *pcb, void *arg, u16_t len,
 
 err_t
 t_tcp_output(struct t_tcp_pcb *pcb);
+
+extern struct t_tcp_pcb *tcp_active_pcbs;
+
+void
+tcp_keepalive(struct t_tcp_pcb *pcb);
 
 #endif

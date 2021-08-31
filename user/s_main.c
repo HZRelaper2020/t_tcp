@@ -127,6 +127,11 @@ int main2()
 			struct t_ip_addr dst;
 			dst.addr = 0x6501A8C0;
 			t_tcp_connect(tcp, &dst, 8837,tcp_connected);
+			sleep(3);
+			tcp_keepalive(tcp);
+			sleep(3);
+			tcp_keepalive(tcp);
+			printf("tcp end\n");
 		}
 	}
 	return 0;
